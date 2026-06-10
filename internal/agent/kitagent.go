@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -89,10 +90,17 @@ func (a *KitAgent) Start(ctx context.Context) error {
 	opts := &kit.Options{
 		Model:      a.model,
 		Streaming:  true,
-		NoSession:  true, // Ephemeral sessions — fresh context per iteration
+		NoSession:  true,
 		SessionDir: a.workDir,
 		Quiet:      true,
-		SkipConfig: true, // Hermetic: ignore ~/.kit.yml so iteratr behaves consistently
+		SkipConfig: true,
+	}
+
+	if url := os.Getenv("ITERATR_PROVIDER_URL"); url != "" {
+		opts.ProviderURL = url
+	}
+	if key := os.Getenv("ITERATR_PROVIDER_API_KEY"); key != "" {
+		opts.ProviderAPIKey = key
 	}
 
 	// Configure MCP server if URL provided.
