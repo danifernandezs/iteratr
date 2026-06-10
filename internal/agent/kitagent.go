@@ -87,8 +87,13 @@ func NewKitAgent(cfg KitAgentConfig) *KitAgent {
 func (a *KitAgent) Start(ctx context.Context) error {
 	logger.Debug("Starting KIT SDK agent")
 
+	model := a.model
+	if strings.HasPrefix(model, "litellm/") {
+		model = "deepseek/" + strings.TrimPrefix(model, "litellm/")
+	}
+
 	opts := &kit.Options{
-		Model:      a.model,
+		Model:      model,
 		Streaming:  true,
 		NoSession:  true,
 		SessionDir: a.workDir,
